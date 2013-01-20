@@ -1,0 +1,19 @@
+'''
+Torrent Commander class
+@author: omriz
+'''
+
+from transmissionrpc import Client
+
+class TorrentCommander(object):
+    """
+    TorrentCommander class is used to do the following:
+    1) Loads a configuration file in JSON format. File should specify:
+        a) Server address and port
+        b) User
+        c) Password
+        d) Temporary directory for downloads.
+        e) Finished download directory
+    """
+    __init__(self,config_file):
+        conf = None

@@ -22,7 +22,7 @@ class TorrentFeedParser(object):
         feed = feedparser.parse(feed_url)
         for entry in feed['entries']:
             if self.torrent_expression.match(entry['title']) is not None:
-                self.torrents.append(entry)
+                self.torrents.append(entry['magneturi'])
     
 
 if __name__ == '__main__':
