@@ -4,4 +4,5 @@
     "server" : "localhost",
     "port" : "9091",
     "download_dir" : "/home/omriz/Downloads",
+    "comics": [ "Aquaman", "Justice.*League", "Wonder.*Woman", "The.*Flash", "Action.*Comics" ],
 }
