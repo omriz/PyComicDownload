@@ -4,5 +4,6 @@
     "server" : "localhost",
     "port" : "9091",
     "download_dir" : "/home/omriz/Downloads",
+    "search_term" : "DC NEW 52 WEEK",
     "comics": [ "Aquaman", "Justice.*League", "Wonder.*Woman", "The.*Flash", "Action.*Comics" ],
 }
