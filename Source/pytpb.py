@@ -22,7 +22,7 @@ import urllib2
 
 import lxml.html
 
-class SearchResultParser:
+class SearchResultParser(object):
 	def __init__(self, html):
 		self.doc = lxml.html.parse(html).getroot()
 	

@@ -27,6 +27,7 @@ class TorrentCommander(object):
                                 password = conf['password'],
                                 )
         self.download_dir = conf['download_dir']
+        self.running_torrent_ids = list()
 
     def add_torrents(self,torrents, download_dir=None, file_filter=None):
         """
@@ -62,6 +63,7 @@ class TorrentCommander(object):
             if not files: raise NoFilesException
             self.transmission.change(torrent.fields['id'], files_wanted = files)
             self.transmission.start(torrent['id'])
+            self.running_torrent_ids.append(torrent['id'])
         except NoFilesException:
             self.transmission.remove(torrent['id'], delete_data=True)
 
@@ -79,6 +81,11 @@ class TorrentCommander(object):
             sleep(5)
             iterations-=1
         raise NoFilesException
+    
+    def cleanup_completed_torrents(self):
+        for id in self.running_torrent_ids:
+            if self.transmission.get_torrent(id).status in ("seeding","stopped"):
+                self.transmission.remove(id, delete_data=False)
 
 class NoFilesException(Exception):
     def __str__(self):
