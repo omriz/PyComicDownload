@@ -1,8 +1,10 @@
 
-import TorrentCommander
+from TorrentCommander import TorrentCommander
 from pytpb import ThePirateBay
 from time import sleep
 import re
+import os
+import json
 
 MINUTE = 60
 HOUR = 60*MINUTE
@@ -17,9 +19,11 @@ class SetupController(object):
     This module will be used to control the whole setup
     """
     def __init__(self):
-        self.torrent_commander = TorrentCommander("~/.comic_setup.json")
+        config_file = os.environ["HOME"]+"/.comic_setup.json"
+        self.week_file = os.environ["HOME"]+"/.next_week" 
+        self.torrent_commander = TorrentCommander(os.environ["HOME"]+"/.comic_setup.json")
         self.pirate_bay = ThePirateBay()
-        f = open("~/.next_week","r")
+        f = open(self.week_file,"r")
         self.next_week = int(f.readline().split("\n")[0])
         f.close()
         self.config = json.load(open(config_file))
@@ -36,25 +40,31 @@ class SetupController(object):
             self.clean_up_directory()
             new_torrents = self.find_torrents()
             self.torrent_commander.add_torrents(new_torrents)
-            sleep(DAY)
+            sleep(0.5*DAY)
     
     def clean_up_directory(self):
         pass
     
     def find_torrents(self,max_torrents=10):
         torrents_to_download = list()
-        search_results = self.pirate_bay.search(search_term)
-        while length(torrents_to_download)<max_torrents: #search loop for this week and on
+        search_results = self.pirate_bay.search(self.config['search_term'])
+        while len(torrents_to_download)<max_torrents: #search loop for this week and on
             # The line termination might be a problem in the future...
             week_search = self.config['search_term'] + " " + str(self.next_week) + "$"
             found = False
             for result in search_results:
-                if re.match(week_search,result['name']) is not None:
-                    torrents_to_downlad.append(result['magnet_url'])
+                if re.match(week_search,result['name'],re.IGNORECASE) is not None:
+                    torrents_to_download.append(result['magnet_url'])
                     found = True
                     self.next_week+=1
             if not found: break
         #saving the next week search term
-        f = open("~/.next_week","w")
+        f = open(self.week_file,"w")
         f.write(str(self.next_week))
         f.close()
+        return torrents_to_download
+
+if __name__ == '__main__':
+    print "Starting setup controller"
+    controller = SetupController()
+    controller.main()

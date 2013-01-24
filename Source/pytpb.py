@@ -131,14 +131,12 @@ class ThePirateBay(object):
 	def search(self, term, page_limit = 50):
 		self.search_results = list() # emptying the list
 		page = 0
-		import pdb
 		while page < page_limit:
 			url = self.searchUrl % (quote_plus(term), page)
 			req = urllib2.Request(url)
 			html = urllib2.urlopen(req)
 			parser = SearchResultParser(html)
 			current_results = parser.parse()
-			pdb.set_trace()
 			if not self.check_existance(current_results):
 				self.search_results += current_results
 				page += 1
