@@ -38,8 +38,10 @@ class SetupController(object):
         while True:
             self.torrent_commander.cleanup_completed_torrents()
             self.clean_up_directory()
+            print "Finished Cleanup"
             new_torrents = self.find_torrents()
             self.torrent_commander.add_torrents(new_torrents)
+            print "Finished Adding Torrents"
             sleep(0.5*DAY)
     
     def clean_up_directory(self):
