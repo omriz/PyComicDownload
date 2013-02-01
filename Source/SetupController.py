@@ -5,6 +5,7 @@ from time import sleep
 import re
 import os
 import json
+import pdb, traceback, sys
 
 MINUTE = 60
 HOUR = 60*MINUTE
@@ -69,4 +70,9 @@ class SetupController(object):
 if __name__ == '__main__':
     print "Starting setup controller"
     controller = SetupController()
-    controller.main()
+    try:
+        controller.main()
+    except:
+        type, value, tb = sys.exc_info()
+        traceback.print_exc()
+        pdb.post_mortem(tb)
