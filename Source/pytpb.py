@@ -146,6 +146,8 @@ class ThePirateBay(object):
 	
 	def check_existance(self,results):
 		"We will check if the first element already exist"
+        if current_results is None or len(results)==0 or self.search_results is None or len(self.search_results)==0:
+            return False
 		for res in self.search_results:
 			if res['name'] == results[0]['name']:
 				return True
