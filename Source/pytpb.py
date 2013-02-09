@@ -133,8 +133,12 @@ class ThePirateBay(object):
         page = 0
         while page < page_limit:
             url = self.searchUrl % (quote_plus(term), page)
-            req = urllib2.Request(url)
-            html = urllib2.urlopen(req)
+            try:
+                req = urllib2.Request(url)
+                html = urllib2.urlopen(req)
+            except urllib2.URLError:
+                print "Search failed"
+                break
             parser = SearchResultParser(html)
             current_results = parser.parse()
             if not self.check_existance(current_results):
