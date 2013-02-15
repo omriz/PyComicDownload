@@ -135,7 +135,7 @@ class ThePirateBay(object):
             url = self.searchUrl % (quote_plus(term), page)
             try:
                 req = urllib2.Request(url)
-                html = urllib2.urlopen(req)
+                html = urllib2.urlopen(req,timeout=5*60)
             except urllib2.URLError:
                 print "Search failed"
                 break
