@@ -19,7 +19,7 @@ import datetime
 from urllib import quote_plus
 from urlparse import urljoin
 import urllib2
-
+import ssl
 import lxml.html
 
 class SearchResultParser(object):
@@ -136,7 +136,7 @@ class ThePirateBay(object):
             try:
                 req = urllib2.Request(url)
                 html = urllib2.urlopen(req,timeout=5*60)
-            except urllib2.URLError:
+            except (urllib2.URLError,ssl.SSLError):
                 print "Search failed"
                 break
             parser = SearchResultParser(html)
