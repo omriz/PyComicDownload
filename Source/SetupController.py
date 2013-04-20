@@ -1,4 +1,4 @@
-
+#!/opt/local/bin/python2.7
 from TorrentCommander import TorrentCommander
 from pytpb import ThePirateBay
 from time import sleep
@@ -6,6 +6,9 @@ import re
 import os
 import json
 import pdb, traceback, sys
+from exceptions import Exception
+import logging
+from logging import handlers
 
 MINUTE = 60
 HOUR = 60*MINUTE
@@ -28,6 +31,7 @@ class SetupController(object):
         self.next_week = int(f.readline().split("\n")[0])
         f.close()
         self.config = json.load(open(config_file))
+        self.logger = logging.getLogger("SetupController")
     
     def main(self):
         """
@@ -39,10 +43,10 @@ class SetupController(object):
         while True:
             self.torrent_commander.cleanup_completed_torrents()
             self.clean_up_directory()
-            print "Finished Cleanup"
+            self.logger.info("Finished Cleanup")
             new_torrents = self.find_torrents()
             self.torrent_commander.add_torrents(new_torrents)
-            print "Finished Adding Torrents"
+            self.logger.info("Finished Adding Torrents")
             sleep(0.5*DAY)
     
     def clean_up_directory(self):
@@ -68,11 +72,17 @@ class SetupController(object):
         return torrents_to_download
 
 if __name__ == '__main__':
-    print "Starting setup controller"
+    #setup logging
+    logging.basicConfig(format="ComicDownloader: %(levelname)s %(message)s")
+    logging.root.setLevel(logging.INFO)
+    #fm = logging.Formatter("%(module)s@%(funcName)s:%(lineno)d - %(message)s")
+    #_syslog.setFormatter(fm)
+    logging.info("Starting setup controller")
     controller = SetupController()
     try:
         controller.main()
-    except:
+    except Exception, e:
         type, value, tb = sys.exc_info()
-        traceback.print_exc()
+        #traceback.print_exc()
+        logging.exception("Exception encountered in the main control loop")
         pdb.post_mortem(tb)

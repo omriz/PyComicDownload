@@ -21,6 +21,7 @@ from urlparse import urljoin
 import urllib2
 import ssl
 import lxml.html
+import logging
 
 class SearchResultParser(object):
     def __init__(self, html):
@@ -137,7 +138,7 @@ class ThePirateBay(object):
                 req = urllib2.Request(url)
                 html = urllib2.urlopen(req,timeout=5*60)
             except (urllib2.URLError,ssl.SSLError):
-                print "Search failed"
+                logging.exception("Search failed")
                 break
             parser = SearchResultParser(html)
             current_results = parser.parse()

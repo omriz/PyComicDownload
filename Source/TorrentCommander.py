@@ -10,6 +10,7 @@ from time import sleep
 from exceptions import Exception
 import os
 import shutil
+import logging
 
 class TorrentCommander(object):
     """
@@ -29,6 +30,8 @@ class TorrentCommander(object):
                                 password = self.conf['password'],
                                 )
         self.download_dir = self.conf['download_dir']
+        self.logger = logging.getLogger("TorrentCommander")
+        self.logger.setLevel(logging.INFO)
 
     def add_torrents(self,torrents, download_dir=None, file_filter=None):
         """
@@ -43,7 +46,7 @@ class TorrentCommander(object):
             torrents = [torrents]
         if download_dir is None: download_dir = self.download_dir 
         for torrent in torrents:
-            print torrent
+            self.logger.debug(str(torrent))
             if torrent.startswith("magnet"): # Handling magnet links
                 running_torrent=self.transmission.add_torrent("1",filename=torrent,download_dir = self.download_dir)
             else:
@@ -94,25 +97,25 @@ class TorrentCommander(object):
         torrent_ids = filter(lambda my_id: self.check_torrent_name(self.transmission.get_torrent(my_id)._fields['name'].value),torrent_ids)
         # Now we have only our interesting torrents
         for my_id in torrent_ids:
-            print "ID : {0}".format(my_id)
+            self.logger.debug("ID : {0}".format(my_id))
             if self.transmission.get_torrent(my_id).status in ("seeding","stopped"):
                 torrent_name = self.transmission.get_torrent(my_id)._fields['name'].value
                 self.transmission.remove(my_id, delete_data=False)
                 torrent_directory = self.conf['download_dir']
                 #finding the torrent directory
-                print "Checking {0}".format(torrent_name)
+                self.logger.debug("Checking {0}".format(torrent_name))
                 for folder in os.listdir(torrent_directory):
                     if re.match(torrent_name,folder,re.IGNORECASE) is not None:
                         torrent_directory = torrent_directory + "/" + folder
-                        print "Found {0}".format(torrent_name)
+                        self.logger.info("Found {0}".format(torrent_name))
                         break
                 #going over the files in the torrent and taking only what we want
                 files = os.listdir(torrent_directory)
-                print "Going over {0}".format(torrent_directory)
+                self.logger.debug("Going over {0}".format(torrent_directory))
                 for f in files:
                     for comic in self.conf['comics']:
                         if re.match(comic,f,re.IGNORECASE): # found an interesting comic
-                            print "Found {0}".format(f)
+                            self.logger.info("Found {0}".format(f))
                             shutil.move(torrent_directory+"/"+f,self.conf['completed_dir'])
                 #deleting what's left
                 shutil.rmtree(torrent_directory)
