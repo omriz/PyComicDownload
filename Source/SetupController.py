@@ -1,4 +1,4 @@
-#!/opt/local/bin/python2.7
+#!/usr/bin/env python
 from TorrentCommander import TorrentCommander
 from pytpb import ThePirateBay
 from time import sleep
@@ -73,7 +73,7 @@ class SetupController(object):
 
 if __name__ == '__main__':
     #setup logging
-    logging.basicConfig(format="ComicDownloader: %(levelname)s %(message)s")
+    logging.basicConfig(format="[%(asctime)s] ComicDownloader(%(levelname)s): %(message)s")
     logging.root.setLevel(logging.INFO)
     #fm = logging.Formatter("%(module)s@%(funcName)s:%(lineno)d - %(message)s")
     #_syslog.setFormatter(fm)
