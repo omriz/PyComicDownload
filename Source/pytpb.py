@@ -137,8 +137,8 @@ class ThePirateBay(object):
             try:
                 req = urllib2.Request(url)
                 html = urllib2.urlopen(req,timeout=5*60)
-            except (urllib2.URLError,ssl.SSLError):
-                logging.exception("Search failed")
+            except (urllib2.URLError,ssl.SSLError),e:
+                logging.error("Search failed due to {0}".format(e))
                 break
             parser = SearchResultParser(html)
             current_results = parser.parse()
