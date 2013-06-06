@@ -57,7 +57,8 @@ class SetupController(object):
         search_results = self.pirate_bay.search(self.config['search_term'])
         while len(torrents_to_download)<max_torrents: #search loop for this week and on
             # The line termination might be a problem in the future...
-            week_search = self.config['search_term'] + " " + str(self.next_week) + "$"
+            week_search = self.config['search_term'] + " " + str(self.next_week)# + "$"
+            logging.debug(week_search)
             found = False
             for result in search_results:
                 if re.match(week_search,result['name'],re.IGNORECASE) is not None:
