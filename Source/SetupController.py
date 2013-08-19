@@ -74,9 +74,13 @@ class SetupController(object):
 
 if __name__ == '__main__':
     #setup logging
-    logging.basicConfig(format="[%(asctime)s] ComicDownloader(%(levelname)s): %(message)s")
+    #logging.basicConfig(format="[%(asctime)s] ComicDownloader(%(levelname)s): %(message)s")
+    rotator_handler = logging.handlers.RotatingFileHandler("/tmp/comic_donwloader.log",mode="a",maxBytes=1024*1024)
+    logging.root.addHandler(rotator_handler)
+    rotator_handler.setLevel(logging.INFO)
     logging.root.setLevel(logging.INFO)
-    #fm = logging.Formatter("%(module)s@%(funcName)s:%(lineno)d - %(message)s")
+    fm = logging.Formatter("[%(asctime)s] ComicDownloader(%(levelname)s): %(message)s")
+    rotator_handler.setFormatter(fm)
     #_syslog.setFormatter(fm)
     logging.info("Starting setup controller")
     controller = SetupController()
