@@ -5,10 +5,9 @@ from time import sleep
 import re
 import os
 import json
-import pdb, traceback, sys
+import pdb, sys
 from exceptions import Exception
 import logging
-from logging import handlers
 
 MINUTE = 60
 HOUR = 60*MINUTE
@@ -24,7 +23,7 @@ class SetupController(object):
     """
     def __init__(self):
         config_file = os.environ["HOME"]+"/.comic_setup.json"
-        self.week_file = os.environ["HOME"]+"/.next_week" 
+        self.week_file = os.environ["HOME"]+"/.next_week"
         self.torrent_commander = TorrentCommander(os.environ["HOME"]+"/.comic_setup.json")
         self.pirate_bay = ThePirateBay()
         f = open(self.week_file,"r")
@@ -32,7 +31,7 @@ class SetupController(object):
         f.close()
         self.config = json.load(open(config_file))
         self.logger = logging.getLogger("SetupController")
-    
+
     def main(self):
         """
         Main control loop:
@@ -48,10 +47,10 @@ class SetupController(object):
             self.torrent_commander.add_torrents(new_torrents)
             self.logger.info("Finished Adding Torrents")
             sleep(0.5*DAY)
-    
+
     def clean_up_directory(self):
         pass
-    
+
     def find_torrents(self,max_torrents=10):
         torrents_to_download = list()
         search_results = self.pirate_bay.search(self.config['search_term'])

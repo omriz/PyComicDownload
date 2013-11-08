@@ -44,7 +44,7 @@ class TorrentCommander(object):
         if not isinstance(torrents,(tuple,list)):
             assert isinstance(torrents,basestring)
             torrents = [torrents]
-        if download_dir is None: download_dir = self.download_dir 
+        if download_dir is None: download_dir = self.download_dir
         for torrent in torrents:
             self.logger.debug(str(torrent))
             if torrent.startswith("magnet"): # Handling magnet links
@@ -87,7 +87,7 @@ class TorrentCommander(object):
             sleep(5)
             iterations-=1
         raise NoFilesException
-    
+
     def cleanup_completed_torrents(self):
         """
         At this point we'll querry the Transmission database and get all apropriate files and filter them
@@ -110,21 +110,28 @@ class TorrentCommander(object):
                         self.logger.info("Found {0}".format(torrent_name))
                         break
                 #going over the files in the torrent and taking only what we want
-                files = os.listdir(torrent_directory)
-                self.logger.debug("Going over {0}".format(torrent_directory))
-                for f in files:
-                    for comic in self.conf['comics']:
-                        if re.match(comic,f,re.IGNORECASE): # found an interesting comic
-                            self.logger.info("Found {0}".format(f))
-                            shutil.move(torrent_directory+"/"+f,self.conf['completed_dir'])
-                #deleting what's left
-                shutil.rmtree(torrent_directory)
+                self.organize_files(torrent_directory)
 
     def check_torrent_name(self,name):
         if re.match(self.conf['search_term'],name,re.IGNORECASE) is not None:
             return True
         else:
             return False
+
+    def organize_files(self,directory):
+        files = os.listdir(directory)
+        self.logger.debug("Going over {0}".format(directory))
+        for f in files:
+            for comic in self.conf['comics']:
+                if re.match(comic,f,re.IGNORECASE): # found an interesting comic
+                    self.logger.info("Found {0}".format(f))
+                    comic_title = "_".join(comic.split(".*"))
+                    target_dir = os.path.join(self.conf['completed_dir'],comic_title)
+                    if not os.path.exists(target_dir):
+                        os.makedirs(target_dir)
+                    shutil.move(os.path.join(directory,f),target_dir)
+        #deleting what's left
+        shutil.rmtree(directory)
 
 class NoFilesException(Exception):
     def __str__(self):
