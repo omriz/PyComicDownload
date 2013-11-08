@@ -46,7 +46,7 @@ class SetupController(object):
             new_torrents = self.find_torrents()
             self.torrent_commander.add_torrents(new_torrents)
             self.logger.info("Finished Adding Torrents")
-            sleep(0.5*DAY)
+            sleep(4*HOUR)
 
     def clean_up_directory(self):
         pass
