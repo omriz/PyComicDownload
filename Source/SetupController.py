@@ -8,6 +8,7 @@ import json
 import pdb, sys
 from exceptions import Exception
 import logging
+from logging import handlers
 
 MINUTE = 60
 HOUR = 60*MINUTE
@@ -56,7 +57,7 @@ class SetupController(object):
         search_results = self.pirate_bay.search(self.config['search_term'])
         while len(torrents_to_download)<max_torrents: #search loop for this week and on
             # The line termination might be a problem in the future...
-            week_search = self.config['search_term'] + " " + str(self.next_week)# + "$"
+            week_search = self.config['search_term'] + " " + str(self.next_week) + "\s*$"
             logging.debug(week_search)
             found = False
             for result in search_results:
@@ -74,7 +75,7 @@ class SetupController(object):
 if __name__ == '__main__':
     #setup logging
     #logging.basicConfig(format="[%(asctime)s] ComicDownloader(%(levelname)s): %(message)s")
-    rotator_handler = logging.handlers.RotatingFileHandler("/tmp/comic_donwloader.log",mode="a",maxBytes=1024*1024)
+    rotator_handler = handlers.RotatingFileHandler("/tmp/comic_donwloader.log",mode="a",maxBytes=1024*1024)
     logging.root.addHandler(rotator_handler)
     rotator_handler.setLevel(logging.INFO)
     logging.root.setLevel(logging.INFO)
