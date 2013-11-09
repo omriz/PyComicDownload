@@ -81,12 +81,13 @@ if __name__ == '__main__':
     fm = logging.Formatter("[%(asctime)s] ComicDownloader(%(levelname)s): %(message)s")
     rotator_handler.setFormatter(fm)
     #_syslog.setFormatter(fm)
-    logging.info("Starting setup controller")
-    controller = SetupController()
-    try:
-        controller.main()
-    except Exception, e:
-        type, value, tb = sys.exc_info()
-        #traceback.print_exc()
-        logging.exception("Exception encountered in the main control loop")
-        pdb.post_mortem(tb)
+    while (1):
+        try:
+            logging.info("Starting setup controller")
+            controller = SetupController()
+            controller.main()
+        except Exception, e:
+            type, value, tb = sys.exc_info()
+            #traceback.print_exc()
+            logging.exception("Exception encountered in the main control loop")
+            sleep(HOUR)
