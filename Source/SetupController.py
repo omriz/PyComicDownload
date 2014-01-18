@@ -8,6 +8,7 @@ import json
 import pdb, sys
 from exceptions import Exception
 import logging
+from logging import handlers
 
 MINUTE = 60
 HOUR = 60*MINUTE
@@ -31,6 +32,7 @@ class SetupController(object):
         f.close()
         self.config = json.load(open(config_file))
         self.logger = logging.getLogger("SetupController")
+        self.logger.setLevel(logging.INFO)
 
     def main(self):
         """
@@ -44,6 +46,7 @@ class SetupController(object):
             self.clean_up_directory()
             self.logger.info("Finished Cleanup")
             new_torrents = self.find_torrents()
+            #sys.exit(-1)
             self.torrent_commander.add_torrents(new_torrents)
             self.logger.info("Finished Adding Torrents")
             sleep(4*HOUR)
@@ -56,11 +59,13 @@ class SetupController(object):
         search_results = self.pirate_bay.search(self.config['search_term'])
         while len(torrents_to_download)<max_torrents: #search loop for this week and on
             # The line termination might be a problem in the future...
-            week_search = self.config['search_term'] + " " + str(self.next_week)# + "$"
-            logging.debug(week_search)
+            week_search = self.config['search_term']  + str(self.next_week) + "\s*$"
+            self.logger.info("Searching for "+week_search)
             found = False
             for result in search_results:
-                if re.match(week_search,result['name'],re.IGNORECASE) is not None:
+                self.logger.debug("Found results %s"%(result['name']))
+                if re.match("\s*".join(week_search.split(" ")),result['name'],re.IGNORECASE) is not None:
+                    self.logger.info("Adding %s"%(result['name']))
                     torrents_to_download.append(result['magnet_url'])
                     found = True
                     self.next_week+=1
@@ -74,10 +79,10 @@ class SetupController(object):
 if __name__ == '__main__':
     #setup logging
     #logging.basicConfig(format="[%(asctime)s] ComicDownloader(%(levelname)s): %(message)s")
-    rotator_handler = logging.handlers.RotatingFileHandler("/tmp/comic_donwloader.log",mode="a",maxBytes=1024*1024)
+    rotator_handler = handlers.RotatingFileHandler("/tmp/comic_donwloader.log",mode="a",maxBytes=1024*1024)
     logging.root.addHandler(rotator_handler)
-    rotator_handler.setLevel(logging.INFO)
-    logging.root.setLevel(logging.INFO)
+    rotator_handler.setLevel(logging.DEBUG)
+    logging.root.setLevel(logging.DEBUG)
     fm = logging.Formatter("[%(asctime)s] ComicDownloader(%(levelname)s): %(message)s")
     rotator_handler.setFormatter(fm)
     #_syslog.setFormatter(fm)

@@ -113,7 +113,7 @@ class TorrentCommander(object):
                 self.organize_files(torrent_directory)
 
     def check_torrent_name(self,name):
-        if re.match(self.conf['search_term'],name,re.IGNORECASE) is not None:
+        if re.match("\s*".join(self.conf['search_term'].split(" ")),name,re.IGNORECASE) is not None:
             return True
         else:
             return False
@@ -129,7 +129,9 @@ class TorrentCommander(object):
                     target_dir = os.path.join(self.conf['completed_dir'],comic_title)
                     if not os.path.exists(target_dir):
                         os.makedirs(target_dir)
-                    shutil.move(os.path.join(directory,f),target_dir)
+                    if not os.path.exists(os.path.join(target_dir,f)):
+                        shutil.copyfile(os.path.join(directory,f),os.path.join(target_dir,f))
+                    os.remove(os.path.join(directory,f))
         #deleting what's left
         shutil.rmtree(directory)
 
