@@ -11,6 +11,14 @@ from exceptions import Exception
 import os
 import shutil
 import logging
+# Please note this must be in the path
+from exceptions import ImportError
+try:
+    from comicsite.utils import update_single_file, extract_comic_info
+except ImportError:
+    #create a null function
+    logging.getLogger("TorrentCommander").error("Failed to import update_single_file")
+    def update_single_file(x): pass
 
 class TorrentCommander(object):
     """
@@ -33,13 +41,10 @@ class TorrentCommander(object):
         self.logger = logging.getLogger("TorrentCommander")
         self.logger.setLevel(logging.INFO)
 
-    def add_torrents(self,torrents, download_dir=None, file_filter=None):
+    def add_torrents(self,torrents, download_dir=None):
         """
         Torrents should be a list
         If passed a string it will be downloaded
-        file_filter will filter the files we want to download - this will be a list of strings that should match the file names
-        example:
-            ['Aquaman', 'Superman', 'Justice.*league']
         """
         if not isinstance(torrents,(tuple,list)):
             assert isinstance(torrents,basestring)
@@ -48,45 +53,9 @@ class TorrentCommander(object):
         for torrent in torrents:
             self.logger.debug(str(torrent))
             if torrent.startswith("magnet"): # Handling magnet links
-                running_torrent=self.transmission.add_torrent("1",filename=torrent,download_dir = self.download_dir)
+                self.transmission.add_torrent("1",filename=torrent,download_dir = self.download_dir)
             else:
-                running_torrent=self.transmission.add_torrent(torrent,download_dir = self.download_dir)
-            #Currently disabling the filter file, it seems the magnet links are taking time
-            #I'll probably filter in post processing on completed torrents. More space used, but still functional
-            #self.filter_torrent(running_torrent,file_filter)
-
-    def filter_torrent(self,torrent,file_filter):
-        """
-        This function will take a torrent and select only the relevant files on it
-        if there's nothing to use in it, it will remove it from the queue
-        """
-        try:
-            files_dict = self.wait_for_files(torrent,timeout=5*60)
-            files = []
-            for file_key in files_dict.keys():
-                for file_name in file_filter:
-                    if re.match(file_name,files_dict[file_key]['name'],re.IGNORECASE) is not None:
-                        files.append(file_key)
-            if not files: raise NoFilesException
-            self.transmission.change(torrent.fields['id'], files_wanted = files)
-            self.transmission.start(torrent['id'])
-        except NoFilesException:
-            self.transmission.remove(torrent['id'], delete_data=True)
-
-    def wait_for_files(self,torrent,timeout=5*60):
-        """
-        Activates a torrent if needed.
-        Waits till it reports back its list of files.
-        """
-        iterations = timeout/5
-        if self.transmission.get_torrent(torrent.fields['id']).status == "stopped":
-            self.transmission.start(torrent.fields['id'])
-        while iterations:
-            files_dict = self.transmission.get_files(torrent.fields['id'])[torrent.fields['id']]
-            if files_dict: return files_dict
-            sleep(5)
-            iterations-=1
-        raise NoFilesException
+                self.transmission.add_torrent(torrent,download_dir = self.download_dir)
 
     def cleanup_completed_torrents(self):
         """
@@ -122,6 +91,7 @@ class TorrentCommander(object):
         files = os.listdir(directory)
         self.logger.debug("Going over {0}".format(directory))
         for f in files:
+            comic_info = extract_comic_info(f)
             for comic in self.conf['comics']:
                 if re.match(comic,f,re.IGNORECASE): # found an interesting comic
                     self.logger.info("Found {0}".format(f))
@@ -129,15 +99,14 @@ class TorrentCommander(object):
                     target_dir = os.path.join(self.conf['completed_dir'],comic_title)
                     if not os.path.exists(target_dir):
                         os.makedirs(target_dir)
-                    if not os.path.exists(os.path.join(target_dir,f)):
-                        shutil.copyfile(os.path.join(directory,f),os.path.join(target_dir,f))
+                    target_comic_file = os.path.join(target_dir,f)
+                    if not os.path.exists(target_comic_file):
+                        shutil.copyfile(os.path.join(directory,f),target_comic_file)
+                        #This is used for the comic server
+                        update_single_file(target_comic_file)
                     os.remove(os.path.join(directory,f))
         #deleting what's left
         shutil.rmtree(directory)
-
-class NoFilesException(Exception):
-    def __str__(self):
-        return "No files found"
 
 if __name__ == '__main__':
     print "Beginning TorrentCommander unit test"

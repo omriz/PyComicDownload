@@ -10,9 +10,13 @@ from exceptions import Exception
 import logging
 from logging import handlers
 
+#Constants
 MINUTE = 60
 HOUR = 60*MINUTE
 DAY = 24*HOUR
+HOME = os.environ["HOME"] + "/"
+CONFIG = HOME + ".comic_setup.json"
+WEEK_FILE = HOME + ".next_week"
 
 #TODO:
 # Logging?
@@ -23,9 +27,9 @@ class SetupController(object):
     This module will be used to control the whole setup
     """
     def __init__(self):
-        config_file = os.environ["HOME"]+"/.comic_setup.json"
-        self.week_file = os.environ["HOME"]+"/.next_week"
-        self.torrent_commander = TorrentCommander(os.environ["HOME"]+"/.comic_setup.json")
+        config_file = CONFIG
+        self.week_file = WEEK_FILE
+        self.torrent_commander = TorrentCommander(CONFIG)
         self.pirate_bay = ThePirateBay()
         f = open(self.week_file,"r")
         self.next_week = int(f.readline().split("\n")[0])
