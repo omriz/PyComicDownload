@@ -41,15 +41,12 @@ class SetupController(object):
             2) Search for new torrents
             3) Wait for next iteration
         """
-        while True:
-            self.torrent_commander.cleanup_completed_torrents()
-            self.clean_up_directory()
-            self.logger.info("Finished Cleanup")
-            new_torrents = self.find_torrents()
-            #sys.exit(-1)
-            self.torrent_commander.add_torrents(new_torrents)
-            self.logger.info("Finished Adding Torrents")
-            sleep(4*HOUR)
+        self.torrent_commander.cleanup_completed_torrents()
+        self.clean_up_directory()
+        self.logger.info("Finished Cleanup")
+        new_torrents = self.find_torrents()
+        self.torrent_commander.add_torrents(new_torrents)
+        self.logger.info("Finished Adding Torrents")
 
     def clean_up_directory(self):
         pass
@@ -86,13 +83,11 @@ if __name__ == '__main__':
     fm = logging.Formatter("[%(asctime)s] ComicDownloader(%(levelname)s): %(message)s")
     rotator_handler.setFormatter(fm)
     #_syslog.setFormatter(fm)
-    while (1):
-        try:
-            logging.info("Starting setup controller")
-            controller = SetupController()
-            controller.main()
-        except Exception, e:
-            type, value, tb = sys.exc_info()
-            #traceback.print_exc()
-            logging.exception("Exception encountered in the main control loop")
-            sleep(HOUR)
+    try:
+        logging.info("Starting setup controller")
+        controller = SetupController()
+        controller.main()
+    except Exception, e:
+        type, value, tb = sys.exc_info()
+        #traceback.print_exc()
+        logging.exception("Exception encountered in the main control loop")
