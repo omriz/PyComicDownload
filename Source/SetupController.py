@@ -49,17 +49,25 @@ class SetupController(object):
             #sys.exit(-1)
             self.torrent_commander.add_torrents(new_torrents)
             self.logger.info("Finished Adding Torrents")
-            sleep(4*HOUR)
+            sleep(60*MINUTE)
 
     def clean_up_directory(self):
         pass
+
+    def update_week(self):
+        #this might be costly but it's safer this way
+        self.next_week += 1
+        #saving the next week search term
+        f = open(self.week_file,"w")
+        f.write(str(self.next_week))
+        f.close()
 
     def find_torrents(self,max_torrents=10):
         torrents_to_download = list()
         search_results = self.pirate_bay.search(self.config['search_term'])
         while len(torrents_to_download)<max_torrents: #search loop for this week and on
             # The line termination might be a problem in the future...
-            week_search = self.config['search_term']  + str(self.next_week) + "\s*$"
+            week_search = self.config['search_term']  + str(self.next_week) #+ "\s*$"
             self.logger.info("Searching for "+week_search)
             found = False
             for result in search_results:
@@ -68,12 +76,9 @@ class SetupController(object):
                     self.logger.info("Adding %s"%(result['name']))
                     torrents_to_download.append(result['magnet_url'])
                     found = True
-                    self.next_week+=1
+                    self.update_week()
+                    break #found the week we were looking for
             if not found: break
-        #saving the next week search term
-        f = open(self.week_file,"w")
-        f.write(str(self.next_week))
-        f.close()
         return torrents_to_download
 
 if __name__ == '__main__':

@@ -31,7 +31,7 @@ class TorrentCommander(object):
                                 )
         self.download_dir = self.conf['download_dir']
         self.logger = logging.getLogger("TorrentCommander")
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(logging.DEBUG)
 
     def add_torrents(self,torrents, download_dir=None, file_filter=None):
         """
@@ -105,12 +105,14 @@ class TorrentCommander(object):
                 #finding the torrent directory
                 self.logger.debug("Checking {0}".format(torrent_name))
                 for folder in os.listdir(torrent_directory):
-                    if re.match(torrent_name,folder,re.IGNORECASE) is not None:
+                    self.logger.debug("Torrent Name {0} Folder name".format(torrent_name, folder))
+                    #if re.match(torrent_name,folder,re.IGNORECASE) is not None:
+                    if torrent_name.lower() == folder.lower():
                         torrent_directory = torrent_directory + "/" + folder
                         self.logger.info("Found {0}".format(torrent_name))
+                        #going over the files in the torrent and taking only what we want
+                        self.organize_files(torrent_directory)
                         break
-                #going over the files in the torrent and taking only what we want
-                self.organize_files(torrent_directory)
 
     def check_torrent_name(self,name):
         if re.match("\s*".join(self.conf['search_term'].split(" ")),name,re.IGNORECASE) is not None:
